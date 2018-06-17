@@ -56,7 +56,7 @@ main() {
       exit 1
     fi
   fi
-  env git clone --depth=1 https://github.com/ohmybash/oh-my-bash.git $OSH || {
+  env git clone --depth=1 https://github.com/zhaowb/oh-my-bash.git $OSH || {
     printf "Error: git clone of oh-my-bash repo failed\n"
     exit 1
   }
