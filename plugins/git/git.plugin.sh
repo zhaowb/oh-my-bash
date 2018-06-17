@@ -24,7 +24,7 @@ function _git_log_prettily(){
   fi
 }
 # Warn if the current branch is a WIP
-function work_in_progress() {
+function _work_in_progress() {
   if $(git log -n 1 2>/dev/null | grep -q -c "\-\-wip\-\-"); then
     echo "WIP!!"
   fi
