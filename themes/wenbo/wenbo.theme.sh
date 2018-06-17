@@ -22,7 +22,7 @@ __args() {
 # }
 
 ____brainy_top_left_parse() {  # color|info[|box_color|box_left|box_right]
-	__args $1
+	__args "$1"
 	[ -n "${args[3]}" ] && _TOP_LEFT+="${args[2]}${args[3]}"
 	_TOP_LEFT+="${args[0]}${args[1]}"
 	[ -n "${args[4]}" ] && _TOP_LEFT+="${args[2]}${args[4]}"
@@ -30,7 +30,7 @@ ____brainy_top_left_parse() {  # color|info[|box_color|box_left|box_right]
 }
 
 ____brainy_top_right_parse() {
-	__args $1
+	__args "$1"
 	_TOP_RIGHT+=" "
 	[ -n "${args[3]}" ] && _TOP_RIGHT+="${args[2]}${args[3]}"
 	_TOP_RIGHT+="${args[0]}${args[1]}"
@@ -39,7 +39,7 @@ ____brainy_top_right_parse() {
 }
 
 ____brainy_bottom_parse() {
-	__args $1
+	__args "$1"
 	[ ${#args[1]} -gt 0 ] && _BOTTOM+="${args[0]}${args[1]} "
 }
 
