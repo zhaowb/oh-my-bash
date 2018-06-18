@@ -65,7 +65,7 @@ ____brainy_top() {
 		_TOP_LEFT+="${___cursor_right}${___cursor_adjust}"
 	fi
 
-	printf "${_TOP_LEFT}${_TOP_RIGHT}"
+	echo "${_TOP_LEFT}${_TOP_RIGHT}"
 }
 
 ____brainy_bottom() {
@@ -74,7 +74,7 @@ ____brainy_bottom() {
 		info="$(___brainy_prompt_"${seg}")"
 		[ -n "${info}" ] && ____brainy_bottom_parse "${info}"
 	done
-	printf "\n%s" "${_BOTTOM}"
+	echo "${_BOTTOM}"
 }
 
 ##############
@@ -148,7 +148,7 @@ ___brainy_prompt_scm() {
 
 ___brainy_prompt_python() {
 	[ "${THEME_SHOW_PYTHON}" != "true" ] && return
-	color=$bold_yellow
+	color=$bold_blue
 	box="[|]"
 	info="$(python_version_prompt)"
 	printf "%s|%s|%s|%s" "${color}" "${info}" "${bold_blue}" "${box}"
@@ -297,7 +297,7 @@ __BRAINY_PROMPT_CHAR_PS1=${THEME_PROMPT_CHAR_PS1:-">"}
 __BRAINY_PROMPT_CHAR_PS2=${THEME_PROMPT_CHAR_PS2:-"\\"}
 
 VIRTUALENV_THEME_PROMPT_PREFIX=''
-VIRTUALENV_THEME_PROMPT_SUFFIX='@'
+VIRTUALENV_THEME_PROMPT_SUFFIX=' : '
 ___BRAINY_TOP_LEFT=${___BRAINY_TOP_LEFT:-"python git_repo scm"}
 # 'dir' 'user_info' can only in left because \w \u \h are evaluated in bash
 # 'dir_r' 'user_r' are for right, they are evaluated before set in PS1
@@ -309,7 +309,7 @@ ___BRAINY_BOTTOM=${___BRAINY_BOTTOM:-"clock exitcode char"}
 ############
 
 __brainy_ps1() {
-	printf "%s%s%s" "$(____brainy_top)" "$(____brainy_bottom)" "${normal}"
+	printf "${cyan}┌─%s\n${cyan}└─%s%s" "$(____brainy_top)" "$(____brainy_bottom)" "${normal}"
 }
 
 __brainy_ps2() {
