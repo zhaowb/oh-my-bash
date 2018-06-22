@@ -1,14 +1,13 @@
 #!/usr/bin/env bash
 
-# mod of Brainy 
-# by zhaowb@gmail.com
+# mod of Brainy by zhaowb@gmail.com
 
 #########
 ## cli ##
 #########
 
 __brainy_show() {
-  typeset _seg=${1:-}
+	typeset _seg=${1:-}
 	shift
 	export THEME_SHOW_${_seg}=true
 }
@@ -112,16 +111,13 @@ __wenbo_theme_main() {  # don't mess up global env
 
 	## Segments
 
-	__default__() {  # set common color and box
-		info="" color=$bold_blue box_left="[" box_right="]" box_color=$bold_white
-	}
+	# set common color and box
+	__default__() { info="" color=$bold_blue box_left="[" box_right="]" box_color=$bold_white; }
 
 	__git_repo__() {  # show git repo name
 		__default__
 		scm
-		[ $SCM != $SCM_GIT ] && return
-		info="$(basename `git rev-parse --show-toplevel`)"
-		color=$bold_red box_left="(" box_right=")"
+		[ $SCM == $SCM_GIT ] && info="$(basename `git rev-parse --show-toplevel`)" color=$bold_red box_left="(" box_right=")"
 	}
 
 	__user_r__() {  # user_info in the right
@@ -143,20 +139,17 @@ __wenbo_theme_main() {  # don't mess up global env
 
 	__scm__() {
 		__default__
-		[ "${THEME_SHOW_SCM}" != "true" ] && return
-		info="$(scm_prompt_info)" color=$bold_green box_left="$(scm_char) " box_right=""
+		[ "${THEME_SHOW_SCM}" == "true" ] && info="$(scm_prompt_info)" color=$bold_green box_left="$(scm_char) " box_right=""
 	}
 
 	__python__() {
 		__default__
-		[ "${THEME_SHOW_PYTHON}" != "true" ] && return
-		info="$(python_version_prompt)" box_color=$bold_blue
+		[ "${THEME_SHOW_PYTHON}" == "true" ] && info="$(python_version_prompt)" box_color=$bold_blue
 	}
 
 	__ruby__() {
 		__default__
-		[ "${THEME_SHOW_RUBY}" != "true" ] && return
-		info="rb-$(ruby_version_prompt)" color=$bold_white box_color=bold_red
+		[ "${THEME_SHOW_RUBY}" == "true" ] && info="rb-$(ruby_version_prompt)" color=$bold_white box_color=$bold_red
 	}
 
 	__todo__() {
@@ -168,8 +161,7 @@ __wenbo_theme_main() {  # don't mess up global env
 
 	__clock__() {
 		__default__
-		[ "${THEME_SHOW_CLOCK}" != "true" ] && return
-		info="$(date +"${THEME_CLOCK_FORMAT}")" color=$THEME_CLOCK_COLOR box_color=$bold_purple
+		[ "${THEME_SHOW_CLOCK}" == "true" ] && info="$(date +"${THEME_CLOCK_FORMAT}")" color=$THEME_CLOCK_COLOR box_color=$bold_purple
 	}
 
 	__battery__() {
@@ -194,10 +186,7 @@ __wenbo_theme_main() {  # don't mess up global env
 		[ "$exitcode" -ne 0 ] && info="${exitcode}"
 	}
 
-	__char__() {
-		__default__
-		info="${__BRAINY_PROMPT_CHAR_PS1}" color=$bold_white box_left="" box_right=""
-	}
+	__char__() { __default__; info="$__BRAINY_PROMPT_CHAR_PS1" color=$bold_white box_left="" box_right=""; }
 
 	make_prompt() {  # list each prompt function in args
 		# example:
@@ -235,6 +224,7 @@ __wenbo_theme_main() {  # don't mess up global env
 
 	PS1="${cyan}┌─$(_top)\n${cyan}└─$(_bottom)$normal"
 	PS2="$bold_white$__BRAINY_PROMPT_CHAR_PS2${normal}"
+	unset -f __default__ __git_repo__ __user_r__ __user_info__ __dir__ __dir_r__ __scm__ __python__ __ruby__ __todo__ __clock__ __battery__ __exitcode__ __char__ make_prompt  _top _bottom
 }
 
 safe_append_prompt_command __wenbo_theme_main
