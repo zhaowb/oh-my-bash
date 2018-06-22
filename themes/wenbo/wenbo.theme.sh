@@ -3,210 +3,6 @@
 # mod of Brainy 
 # by zhaowb@gmail.com
 
-#############
-## Parsers ##
-#############
-
-__args() {
-   ifs_old="$IFS" && IFS="|" args=( $1 ) && IFS="$ifs_old"
-}
-
-# __make_prompt() {  # list each prompt function in args
-# 	# example:
-# 	# __make_prompt $___BRAINY_TOP_LEFT
-# 	# __make_prompt python clock dir
-# 	for seg in $*; do
-# 		info="$(___brainy_prompt_"${seg}")"
-# 		[ -n "${info}" ] && ____brainy_top_left_parse "${info}"
-# 	done
-# }
-
-____brainy_top_left_parse() {  # color|info[|box_color|box_left|box_right]
-	__args "$1"
-	[ -n "${args[3]}" ] && _TOP_LEFT+="${args[2]}${args[3]}"
-	_TOP_LEFT+="${args[0]}${args[1]}"
-	[ -n "${args[4]}" ] && _TOP_LEFT+="${args[2]}${args[4]}"
-	_TOP_LEFT+=" "
-}
-
-____brainy_top_right_parse() {
-	__args "$1"
-	_TOP_RIGHT+=" "
-	[ -n "${args[3]}" ] && _TOP_RIGHT+="${args[2]}${args[3]}"
-	_TOP_RIGHT+="${args[0]}${args[1]}"
-	[ -n "${args[4]}" ] && _TOP_RIGHT+="${args[2]}${args[4]}"
-	(( __TOP_RIGHT_LEN += ${#args[1]} + ${#args[3]} + ${#args[4]} + 1 ))
-}
-
-____brainy_bottom_parse() {
-	__args "$1"
-	[ ${#args[1]} -gt 0 ] && _BOTTOM+="${args[0]}${args[1]} "
-}
-
-____brainy_top() {
-	_TOP_LEFT=""
-	_TOP_RIGHT=""
-	__TOP_RIGHT_LEN=0
-
-	for seg in ${___BRAINY_TOP_LEFT}; do
-		info="$(___brainy_prompt_"${seg}")"
-		[ -n "${info}" ] && ____brainy_top_left_parse "${info}"
-	done
-
-	for seg in ${___BRAINY_TOP_RIGHT}; do
-		info="$(___brainy_prompt_"${seg}")"
-		[ -n "${info}" ] && ____brainy_top_right_parse "${info}"
-	done
-
-	if [ $__TOP_RIGHT_LEN -gt 0 ]; then
-	       (( __TOP_RIGHT_LEN -= 1 ))
-		___cursor_right="\033[500C"
-		___cursor_adjust="\033[${__TOP_RIGHT_LEN}D"
-		_TOP_LEFT+="${___cursor_right}${___cursor_adjust}"
-	fi
-
-	echo "${_TOP_LEFT}${_TOP_RIGHT}"
-}
-
-____brainy_bottom() {
-	_BOTTOM=""
-	for seg in $___BRAINY_BOTTOM; do
-		info="$(___brainy_prompt_"${seg}")"
-		[ -n "${info}" ] && ____brainy_bottom_parse "${info}"
-	done
-	echo "${_BOTTOM}"
-}
-
-##############
-## Segments ##
-##############
-
-___brainy_prompt_user_r() {  # user_info in the right
-	color=$bold_blue
-	if [ "${THEME_SHOW_SUDO}" == "true" ]; then
-		if [ $(sudo -n id -u 2>&1 | grep 0) ]; then
-			color=$bold_red
-		fi
-	fi
-	box="[|]"
-	info="$USER@$HOSTNAME"
-	if [ -n "${SSH_CLIENT}" ]; then
-		printf "%s|%s|%s|%s" "${color}" "${info}" "${bold_white}" "${box}"
-	else
-		printf "%s|%s" "${color}" "${info}"
-	fi
-}
-
-___brainy_prompt_dir_r() {  # dir in the right
-	color=$bold_yellow
-	box="[|]"
-	info="$PWD"
-	printf "%s|%s|%s|%s" "${color}" "${info}" "${bold_white}" "${box}"
-}
-
-___brainy_prompt_git_repo() {  # show git repo name
-	scm
-	[ $SCM != $SCM_GIT ] && return
-	color=$bold_red
-	box="(|)"
-	box_color=$bold_white
-	info="$(basename `git rev-parse --show-toplevel`)"
-	printf "%s|%s|%s|%s" "${color}" "${info}" "${box_color}" "${box}"
-}
-
-
-___brainy_prompt_user_info() {
-	color=$bold_blue
-	if [ "${THEME_SHOW_SUDO}" == "true" ]; then
-		if [ $(sudo -n id -u 2>&1 | grep 0) ]; then
-			color=$bold_red
-		fi
-	fi
-	box="[|]"
-	info="\u@\H"
-	if [ -n "${SSH_CLIENT}" ]; then
-		printf "%s|%s|%s|%s" "${color}" "${info}" "${bold_white}" "${box}"
-	else
-		printf "%s|%s" "${color}" "${info}"
-	fi
-}
-
-___brainy_prompt_dir() {
-	color=$bold_yellow
-	box="[|]"
-	info="\w"
-	printf "%s|%s|%s|%s" "${color}" "${info}" "${bold_white}" "${box}"
-}
-
-___brainy_prompt_scm() {
-	[ "${THEME_SHOW_SCM}" != "true" ] && return
-	color=$bold_green
-	box="$(scm_char) "
-	info="$(scm_prompt_info)"
-	printf "%s|%s|%s|%s" "${color}" "${info}" "${bold_white}" "${box}"
-}
-
-___brainy_prompt_python() {
-	[ "${THEME_SHOW_PYTHON}" != "true" ] && return
-	color=$bold_blue
-	box="[|]"
-	info="$(python_version_prompt)"
-	printf "%s|%s|%s|%s" "${color}" "${info}" "${bold_blue}" "${box}"
-}
-
-___brainy_prompt_ruby() {
-	[ "${THEME_SHOW_RUBY}" != "true" ] && return
-	color=$bold_white
-	box="[|]"
-	info="rb-$(ruby_version_prompt)"
-	printf "%s|%s|%s|%s" "${color}" "${info}" "${bold_red}" "${box}"
-}
-
-___brainy_prompt_todo() {
-	[ "${THEME_SHOW_TODO}" != "true" ] ||
-	[ -z "$(which todo.sh)" ] && return
-	color=$bold_white
-	box="[|]"
-	info="t:$(todo.sh ls | egrep "TODO: [0-9]+ of ([0-9]+)" | awk '{ print $4 }' )"
-	printf "%s|%s|%s|%s" "${color}" "${info}" "${bold_green}" "${box}"
-}
-
-___brainy_prompt_clock() {
-	[ "${THEME_SHOW_CLOCK}" != "true" ] && return
-	color=$THEME_CLOCK_COLOR
-	box="[|]"
-	info="$(date +"${THEME_CLOCK_FORMAT}")"
-	printf "%s|%s|%s|%s" "${color}" "${info}" "${bold_purple}" "${box}"
-}
-
-___brainy_prompt_battery() {
-	[ ! -e $OSH/plugins/battery/battery.plugin.sh ] ||
-	[ "${THEME_SHOW_BATTERY}" != "true" ] && return
-	info=$(battery_percentage)
-	color=$bold_green
-	if [ "$info" -lt 50 ]; then
-		color=$bold_yellow
-	elif [ "$info" -lt 25 ]; then
-		color=$bold_red
-	fi
-	box="[|]"
-	ac_adapter_connected && info+="+"
-	[ "$info" == "100+" ] && info="AC"
-	printf "%s|%s|%s|%s" "${color}" "${info}" "${bold_white}" "${box}"
-}
-
-___brainy_prompt_exitcode() {
-	[ "${THEME_SHOW_EXITCODE}" != "true" ] && return
-	color=$bold_purple
-	[ "$exitcode" -ne 0 ] && printf "%s|%s" "${color}" "${exitcode}"
-}
-
-___brainy_prompt_char() {
-	color=$bold_white
-	prompt_char="${__BRAINY_PROMPT_CHAR_PS1}"
-	printf "%s|%s" "${color}" "${prompt_char}"
-}
-
 #########
 ## cli ##
 #########
@@ -308,20 +104,139 @@ ___BRAINY_BOTTOM=${___BRAINY_BOTTOM:-"clock exitcode char"}
 ## Prompt ##
 ############
 
-__brainy_ps1() {
-	printf "${cyan}┌─%s\n${cyan}└─%s%s" "$(____brainy_top)" "$(____brainy_bottom)" "${normal}"
+__wenbo_theme_main() {  # don't mess up global env
+	exitcode="$?"
+
+	local PROMPT PROMPT_LEN  # output of make__promp()
+	local color info box_color box_left box_right  # output of __xxx__()
+
+	## Segments
+
+	__default__() {  # set common color and box
+		info="" color=$bold_blue box_left="[" box_right="]" box_color=$bold_white
+	}
+
+	__git_repo__() {  # show git repo name
+		__default__
+		scm
+		[ $SCM != $SCM_GIT ] && return
+		info="$(basename `git rev-parse --show-toplevel`)"
+		color=$bold_red box_left="(" box_right=")"
+	}
+
+	__user_r__() {  # user_info in the right
+		__default__
+		info="$USER@$HOSTNAME"  # instead of \u@\H ; use $VAR to get fixed length data
+		[ "${THEME_SHOW_SUDO}" == "true" ] && [ $(sudo -n id -u 2>&1 | grep 0) ] && color=$bold_red
+		[ "${SSH_CLIENT}" ] && box_left="" box_right=""
+	}
+
+	__user_info__() {
+		__default__
+		info="\u@\H"
+		[ "${THEME_SHOW_SUDO}" == "true" ] && [ $(sudo -n id -u 2>&1 | grep 0) ] && color=$bold_red
+		[ "${SSH_CLIENT}" ] && box_left="" box_right=""
+	}
+
+	__dir_r__() { __default__ ; info="$PWD" color=$bold_yellow; }  # dir in the right
+	__dir__() { __default__ ; info="\w" color=$bold_yellow; }
+
+	__scm__() {
+		__default__
+		[ "${THEME_SHOW_SCM}" != "true" ] && return
+		info="$(scm_prompt_info)" color=$bold_green box_left="$(scm_char) " box_right=""
+	}
+
+	__python__() {
+		__default__
+		[ "${THEME_SHOW_PYTHON}" != "true" ] && return
+		info="$(python_version_prompt)" box_color=$bold_blue
+	}
+
+	__ruby__() {
+		__default__
+		[ "${THEME_SHOW_RUBY}" != "true" ] && return
+		info="rb-$(ruby_version_prompt)" color=$bold_white box_color=bold_red
+	}
+
+	__todo__() {
+		__default__
+		[ "${THEME_SHOW_TODO}" != "true" ] || [ -z "$(which todo.sh)" ] && return
+		info="t:$(todo.sh ls | egrep "TODO: [0-9]+ of ([0-9]+)" | awk '{ print $4 }' )"
+		color=$bold_white box_color=$bold_green
+	}
+
+	__clock__() {
+		__default__
+		[ "${THEME_SHOW_CLOCK}" != "true" ] && return
+		info="$(date +"${THEME_CLOCK_FORMAT}")" color=$THEME_CLOCK_COLOR box_color=$bold_purple
+	}
+
+	__battery__() {
+		__default__
+		[ ! -e $OSH/plugins/battery/battery.plugin.sh ] ||
+		[ "${THEME_SHOW_BATTERY}" != "true" ] && return
+		info=$(battery_percentage)
+		color=$bold_green
+		if [ "$info" -lt 50 ]; then
+			color=$bold_yellow
+		elif [ "$info" -lt 25 ]; then
+			color=$bold_red
+		fi
+		ac_adapter_connected && info+="+"
+		[ "$info" == "100+" ] && info="AC"
+	}
+
+	__exitcode__() {
+		__default__
+		[ "${THEME_SHOW_EXITCODE}" != "true" ] && return
+		color=$bold_purple
+		[ "$exitcode" -ne 0 ] && info="${exitcode}"
+	}
+
+	__char__() {
+		__default__
+		info="${__BRAINY_PROMPT_CHAR_PS1}" color=$bold_white box_left="" box_right=""
+	}
+
+	make_prompt() {  # list each prompt function in args
+		# example:
+		# make_prompt $___BRAINY_TOP_LEFT
+		# make_prompt python clock dir
+		PROMPT=""
+		PROMPT_LEN=0
+		local seg
+		for seg in $*; do
+			__"${seg}"__  # setup color, info, box_color, box_left, box_right
+			if [ -n "$info" ] ; then
+				[ $PROMPT_LEN -gt 0 ] && PROMPT+=" " && ((PROMPT_LEN+=1))
+				[ -n "$box_left" ] && PROMPT+="$box_color$box_left" && (( PROMPT_LEN += ${#box_left} ))
+				PROMPT+="$color$info" && (( PROMPT_LEN += ${#info} ))
+				[ -n "$box_right" ] && PROMPT+="$box_color$box_right" && (( PROMPT_LEN += ${#box_right} ))
+			fi
+		done
+	}
+
+	_top() {
+		local LEFT="" RIGHT="" RIGHT_LEN=0
+
+		make_prompt $___BRAINY_TOP_LEFT ; LEFT="$PROMPT "
+		make_prompt $___BRAINY_TOP_RIGHT ; RIGHT=" $PROMPT" RIGHT_LEN=$PROMPT_LEN
+
+		if [ $RIGHT_LEN -gt 0 ]; then
+			local ___cursor_right="\033[500C" ___cursor_adjust="\033[${RIGHT_LEN}D"
+			echo "$LEFT$___cursor_right$___cursor_adjust$RIGHT"
+		else
+			echo "$LEFT"
+		fi
+	}
+
+	_bottom() { make_prompt $___BRAINY_BOTTOM ; echo "$PROMPT"; }
+
+	PS1="${cyan}┌─$(_top)\n${cyan}└─$(_bottom)$normal"
+	PS2="$bold_white$__BRAINY_PROMPT_CHAR_PS2${normal}"
 }
 
-__brainy_ps2() {
-	color=$bold_white
-	printf "%s%s%s" "${color}" "${__BRAINY_PROMPT_CHAR_PS2}  " "${normal}"
-}
+safe_append_prompt_command __wenbo_theme_main
+# unset -f __wenbo_theme_main
 
-_brainy_prompt() {
-    exitcode="$?"
-
-    PS1="$(__brainy_ps1)"
-    PS2="$(__brainy_ps2)"
-}
-
-safe_append_prompt_command _brainy_prompt
