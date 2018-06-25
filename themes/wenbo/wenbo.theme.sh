@@ -92,7 +92,7 @@ __BRAINY_PROMPT_CHAR_PS1=${THEME_PROMPT_CHAR_PS1:-">"}
 __BRAINY_PROMPT_CHAR_PS2=${THEME_PROMPT_CHAR_PS2:-"\\"}
 
 VIRTUALENV_THEME_PROMPT_PREFIX=''
-VIRTUALENV_THEME_PROMPT_SUFFIX=' : '
+VIRTUALENV_THEME_PROMPT_SUFFIX=''
 ___BRAINY_TOP_LEFT=${___BRAINY_TOP_LEFT:-"python git_repo scm"}
 # 'dir' 'user_info' can only in left because \w \u \h are evaluated in bash
 # 'dir_r' 'user_r' are for right, they are evaluated before set in PS1
@@ -144,7 +144,7 @@ __wenbo_theme_main() {  # don't mess up global env
 
 	__python__() {
 		__default__
-		[ "${THEME_SHOW_PYTHON}" == "true" ] && info="$(python_version_prompt)" box_color=$bold_blue
+		[ "${THEME_SHOW_PYTHON}" == "true" ] && info="$(virtualenv_prompt)" color=$background_blue$bold_white box_color=$bold_yellow box_left="(" box_right=")"
 	}
 
 	__ruby__() {
@@ -200,7 +200,7 @@ __wenbo_theme_main() {  # don't mess up global env
 			if [ -n "$info" ] ; then
 				[ $PROMPT_LEN -gt 0 ] && PROMPT+=" " && ((PROMPT_LEN+=1))
 				[ -n "$box_left" ] && PROMPT+="$box_color$box_left" && (( PROMPT_LEN += ${#box_left} ))
-				PROMPT+="$color$info" && (( PROMPT_LEN += ${#info} ))
+				PROMPT+="$color$info$normal" && (( PROMPT_LEN += ${#info} ))
 				[ -n "$box_right" ] && PROMPT+="$box_color$box_right" && (( PROMPT_LEN += ${#box_right} ))
 			fi
 		done
