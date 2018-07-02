@@ -117,7 +117,7 @@ __wenbo_theme_main() {  # don't mess up global env
 	__git_repo__() {  # show git repo name
 		__default__
 		scm
-		[ $SCM == $SCM_GIT ] && info="$(basename `git rev-parse --show-toplevel`)" color=$bold_red box_left="(" box_right=")"
+		[ $SCM == $SCM_GIT ] && info="$(basename `git rev-parse --show-toplevel`)" color=$bold_red box_left="git["
 	}
 
 	__user_r__() {  # user_info in the right
@@ -144,7 +144,7 @@ __wenbo_theme_main() {  # don't mess up global env
 
 	__python__() {
 		__default__
-		[ "${THEME_SHOW_PYTHON}" == "true" ] && info="$(virtualenv_prompt)" color=$background_blue$bold_white box_color=$bold_yellow box_left="(" box_right=")"
+		[ "${THEME_SHOW_PYTHON}" == "true" ] && info="$(virtualenv_prompt)" color=$background_blue$bold_white box_color=$bold_yellow box_left="venv["
 	}
 
 	__ruby__() {
@@ -161,7 +161,7 @@ __wenbo_theme_main() {  # don't mess up global env
 
 	__clock__() {
 		__default__
-		[ "${THEME_SHOW_CLOCK}" == "true" ] && info="$(date +"${THEME_CLOCK_FORMAT}")" color=$THEME_CLOCK_COLOR box_color=$bold_purple
+		[ "${THEME_SHOW_CLOCK}" == "true" ] && info="$(date +"${THEME_CLOCK_FORMAT}")" color=$THEME_CLOCK_COLOR box_left="" box_right=""
 	}
 
 	__battery__() {
@@ -183,7 +183,7 @@ __wenbo_theme_main() {  # don't mess up global env
 		__default__
 		[ "${THEME_SHOW_EXITCODE}" != "true" ] && return
 		color=$bold_purple
-		[ "$exitcode" -ne 0 ] && info="${exitcode}"
+		[ "$exitcode" -ne 0 ] && info="${exitcode}" color=$background_red$bold_white box_left="" box_right=""
 	}
 
 	__char__() { __default__; info="$__BRAINY_PROMPT_CHAR_PS1" color=$bold_white box_left="" box_right=""; }
