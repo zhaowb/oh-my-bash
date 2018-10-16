@@ -196,12 +196,12 @@ __wenbo_theme_main() {  # don't mess up global env
 		PROMPT_LEN=0
 		local seg
 		for seg in $*; do
-			sec1=$(date +%s.%N)
+			# sec1=$(date +%s.%N)
 			__"${seg}"__  # setup color, info, box_color, box_left, box_right
-			sec2=$(date +%s.%N)
-			used=$(bc <<< "(($sec2-$sec1)*1000)/1")  # milliseconds in int
+			# sec2=$(date +%s.%N)
+			# used=$(bc <<< "(($sec2-$sec1)*1000)/1")  # milliseconds in int
 echo "$(date +%s.%N) wenbo theme seg $seg used $used ms" >> /tmp/home_profile.log
-			[ $used -gt 100 ] && echo make_prompt $seg used $used ms
+			# [ $used -gt 100 ] && echo make_prompt $seg used $used ms
 			if [ -n "$info" ] ; then
 				[ $PROMPT_LEN -gt 0 ] && PROMPT+=" " && ((PROMPT_LEN+=1))
 				[ -n "$box_left" ] && PROMPT+="$box_color$box_left" && (( PROMPT_LEN += ${#box_left} ))
