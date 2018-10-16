@@ -196,7 +196,12 @@ __wenbo_theme_main() {  # don't mess up global env
 		PROMPT_LEN=0
 		local seg
 		for seg in $*; do
+			sec1=$(date +%s.%N)
 			__"${seg}"__  # setup color, info, box_color, box_left, box_right
+			sec2=$(date +%s.%N)
+			used=$(bc <<< "(($sec2-$sec1)*1000)/1")  # milliseconds in int
+echo "$(date +%s.%N) wenbo theme seg $seg used $used ms" >> /tmp/home_profile.log
+			[ $used -gt 100 ] && echo make_prompt $seg used $used ms
 			if [ -n "$info" ] ; then
 				[ $PROMPT_LEN -gt 0 ] && PROMPT+=" " && ((PROMPT_LEN+=1))
 				[ -n "$box_left" ] && PROMPT+="$box_color$box_left" && (( PROMPT_LEN += ${#box_left} ))
@@ -222,9 +227,11 @@ __wenbo_theme_main() {  # don't mess up global env
 
 	_bottom() { make_prompt $___BRAINY_BOTTOM ; echo "$PROMPT"; }
 
+echo "$(date +%s.%N) wenbo theme starts" >> /tmp/home_profile.log
 	PS1="${cyan}┌─$(_top)\n${cyan}└─$(_bottom)$normal"
 	PS2="$bold_white$__BRAINY_PROMPT_CHAR_PS2${normal}"
 	unset -f __default__ __git_repo__ __user_r__ __user_info__ __dir__ __dir_r__ __scm__ __python__ __ruby__ __todo__ __clock__ __battery__ __exitcode__ __char__ make_prompt  _top _bottom
+echo "$(date +%s.%N) wenbo theme ends" >> /tmp/home_profile.log
 }
 
 safe_append_prompt_command __wenbo_theme_main
