@@ -27,6 +27,10 @@ Oh My Bash is installed by running one of the following commands in your termina
 ```shell
 sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmybash/oh-my-bash/master/tools/install.sh)"
 ```
+mod
+```shell
+sh -c "$(curl -fsSL https://raw.githubusercontent.com/zhaowb/oh-my-bash/master/tools/install.sh)"
+```
 
 #### via wget
 
