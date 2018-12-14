@@ -128,7 +128,7 @@ alias ux='chmod u+x'                        # ---x------ (user: --x, group: -, o
 #   ---------------------------------------
 
 alias bdate="date '+%a, %b %d %Y %T %Z'"
-alias cal='cal -3'
+alias cal3='cal -3'
 alias da='date "+%Y-%m-%d %A    %T %Z"'
 alias daysleft='echo "There are $(($(date +%j -d"Dec 31, $(date +%Y)")-$(date +%j))) left in year $(date +%Y)."'
 alias epochtime='date +%s'
