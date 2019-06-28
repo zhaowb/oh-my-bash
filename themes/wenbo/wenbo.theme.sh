@@ -88,6 +88,8 @@ THEME_SHOW_EXITCODE=${THEME_SHOW_EXITCODE:-"true"}
 THEME_CLOCK_COLOR=${THEME_CLOCK_COLOR:-"$bold_white"}
 THEME_CLOCK_FORMAT=${THEME_CLOCK_FORMAT:-"%H:%M:%S"}
 
+THEME_DEBUG=0
+
 __BRAINY_PROMPT_CHAR_PS1=${THEME_PROMPT_CHAR_PS1:-">"}
 __BRAINY_PROMPT_CHAR_PS2=${THEME_PROMPT_CHAR_PS2:-"\\"}
 
@@ -105,6 +107,8 @@ ___BRAINY_BOTTOM=${___BRAINY_BOTTOM:-"clock exitcode char"}
 
 __wenbo_theme_main() {  # don't mess up global env
 	exitcode="$?"
+
+	__debug__() { [ $THEME_DEBUG ] && echo "$(date +%s.%N) wenbo theme $*" >> /tmp/home_profile.log }
 
 	local PROMPT PROMPT_LEN  # output of make__promp()
 	local color info box_color box_left box_right  # output of __xxx__()
@@ -200,7 +204,7 @@ __wenbo_theme_main() {  # don't mess up global env
 			__"${seg}"__  # setup color, info, box_color, box_left, box_right
 			# sec2=$(date +%s.%N)
 			# used=$(bc <<< "(($sec2-$sec1)*1000)/1")  # milliseconds in int
-echo "$(date +%s.%N) wenbo theme seg $seg used $used ms" >> /tmp/home_profile.log
+			__debug__ seg $seg used $used ms
 			# [ $used -gt 100 ] && echo make_prompt $seg used $used ms
 			if [ -n "$info" ] ; then
 				[ $PROMPT_LEN -gt 0 ] && PROMPT+=" " && ((PROMPT_LEN+=1))
@@ -227,11 +231,11 @@ echo "$(date +%s.%N) wenbo theme seg $seg used $used ms" >> /tmp/home_profile.lo
 
 	_bottom() { make_prompt $___BRAINY_BOTTOM ; echo "$PROMPT"; }
 
-echo "$(date +%s.%N) wenbo theme starts" >> /tmp/home_profile.log
+	__debug__ starts
 	PS1="${cyan}┌─$(_top)\n${cyan}└─$(_bottom)$normal"
 	PS2="$bold_white$__BRAINY_PROMPT_CHAR_PS2${normal}"
 	unset -f __default__ __git_repo__ __user_r__ __user_info__ __dir__ __dir_r__ __scm__ __python__ __ruby__ __todo__ __clock__ __battery__ __exitcode__ __char__ make_prompt  _top _bottom
-echo "$(date +%s.%N) wenbo theme ends" >> /tmp/home_profile.log
+	__debug__ ends
 }
 
 safe_append_prompt_command __wenbo_theme_main
