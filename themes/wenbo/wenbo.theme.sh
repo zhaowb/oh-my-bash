@@ -108,7 +108,9 @@ ___BRAINY_BOTTOM=${___BRAINY_BOTTOM:-"clock exitcode char"}
 __wenbo_theme_main() {  # don't mess up global env
 	exitcode="$?"
 
-	__debug__() { [ $THEME_DEBUG ] && echo "$(date +%s.%N) wenbo theme $*" >> /tmp/home_profile.log }
+	__debug__() {
+    [ $THEME_DEBUG == 1 ] && echo "$(date +%s.%N) wenbo theme $*" >> /tmp/home_profile.log
+  }
 
 	local PROMPT PROMPT_LEN  # output of make__promp()
 	local color info box_color box_left box_right  # output of __xxx__()
