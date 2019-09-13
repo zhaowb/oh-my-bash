@@ -99,7 +99,7 @@ ___BRAINY_TOP_LEFT=${___BRAINY_TOP_LEFT:-"python git_repo scm"}
 # 'dir' 'user_info' can only in left because \w \u \h are evaluated in bash
 # 'dir_r' 'user_r' are for right, they are evaluated before set in PS1
 ___BRAINY_TOP_RIGHT=${___BRAINY_TOP_RIGHT:-"dir_r user_r ruby todo battery"}
-___BRAINY_BOTTOM=${___BRAINY_BOTTOM:-"clock exitcode char"}
+___BRAINY_BOTTOM=${___BRAINY_BOTTOM:-"clock exitcode warning char"}
 
 ############
 ## Prompt ##
@@ -114,6 +114,13 @@ __wenbo_theme_main() {  # don't mess up global env
 
 	local PROMPT PROMPT_LEN  # output of make__promp()
 	local color info box_color box_left box_right  # output of __xxx__()
+
+  function logit() {
+    local LOGFILE=/tmp/home_profile.log
+    echo "# $(date +%s.%N[%F.%T]) $*" >> $LOGFILE
+    # cat /dev/stdin >> $LOGFILE
+  }
+
 
 	## Segments
 
@@ -192,6 +199,11 @@ __wenbo_theme_main() {  # don't mess up global env
 		[ "$exitcode" -ne 0 ] && info="${exitcode}" color=$background_red$bold_white box_left="" box_right=""
 	}
 
+	__warning__() {  # display $WARNING in red, anyone can set this env var
+		__default__
+		[ "${WARNING}" != "" ] && info="$WARNING" color=$bold_red box_left="!" box_right="!"
+	}
+
 	__char__() { __default__; info="$__BRAINY_PROMPT_CHAR_PS1" color=$bold_white box_left="" box_right=""; }
 
 	make_prompt() {  # list each prompt function in args
@@ -200,13 +212,13 @@ __wenbo_theme_main() {  # don't mess up global env
 		# make_prompt python clock dir
 		PROMPT=""
 		PROMPT_LEN=0
-		local seg
+		local seg used
 		for seg in $*; do
 			# sec1=$(date +%s.%N)
 			__"${seg}"__  # setup color, info, box_color, box_left, box_right
 			# sec2=$(date +%s.%N)
 			# used=$(bc <<< "(($sec2-$sec1)*1000)/1")  # milliseconds in int
-			__debug__ seg $seg used $used ms
+      logit "wenbo theme seg $seg used $used ms"
 			# [ $used -gt 100 ] && echo make_prompt $seg used $used ms
 			if [ -n "$info" ] ; then
 				[ $PROMPT_LEN -gt 0 ] && PROMPT+=" " && ((PROMPT_LEN+=1))
@@ -218,14 +230,18 @@ __wenbo_theme_main() {  # don't mess up global env
 	}
 
 	_top() {
-		local LEFT="" RIGHT="" RIGHT_LEN=0
+		local LEFT="" RIGHT="" LEFT_LEN=0 RIGHT_LEN=0
 
-		make_prompt $___BRAINY_TOP_LEFT ; LEFT="$PROMPT "
+		make_prompt $___BRAINY_TOP_LEFT ; LEFT="$PROMPT " LEFT_LEN=$PROMPT_LEN
 		make_prompt $___BRAINY_TOP_RIGHT ; RIGHT=" $PROMPT" RIGHT_LEN=$PROMPT_LEN
 
 		if [ $RIGHT_LEN -gt 0 ]; then
 			local ___cursor_right="\033[500C" ___cursor_adjust="\033[${RIGHT_LEN}D"
-			echo "$LEFT$___cursor_right$___cursor_adjust$RIGHT"
+      if [ $(( $LEFT_LEN+$RIGHT_LEN )) -gt $COLUMNS ]; then
+        echo "$LEFT\n${cyan}|$___cursor_right$___cursor_adjust$RIGHT"
+      else
+			  echo "$LEFT$___cursor_right$___cursor_adjust$RIGHT"
+      fi
 		else
 			echo "$LEFT"
 		fi
@@ -233,11 +249,11 @@ __wenbo_theme_main() {  # don't mess up global env
 
 	_bottom() { make_prompt $___BRAINY_BOTTOM ; echo "$PROMPT"; }
 
-	__debug__ starts
+logit "wenbo theme starts"
 	PS1="${cyan}┌─$(_top)\n${cyan}└─$(_bottom)$normal"
 	PS2="$bold_white$__BRAINY_PROMPT_CHAR_PS2${normal}"
 	unset -f __default__ __git_repo__ __user_r__ __user_info__ __dir__ __dir_r__ __scm__ __python__ __ruby__ __todo__ __clock__ __battery__ __exitcode__ __char__ make_prompt  _top _bottom
-	__debug__ ends
+logit "wenbo theme ends"
 }
 
 safe_append_prompt_command __wenbo_theme_main
